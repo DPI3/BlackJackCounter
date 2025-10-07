@@ -7,7 +7,7 @@ public class Deck {
     ArrayList<Card> createDeck(){
         ArrayList<Card> card = new ArrayList<Card>(52);
         for(suits s: suits.values()){
-            for(short j = 1; j <= 14; j++){
+            for(short j = 2; j <= 14; j++){
                 card.add(new Card(j, s));
             }
         }
