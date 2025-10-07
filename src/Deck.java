@@ -25,6 +25,19 @@ public class Deck {
         }
     }
 
+    public void RemoveCard(int index){
+        cards.remove(index);
+    }
+
+    public Card getCard(int index){
+        return cards.get(index);
+    }
+
+    public Card getRandomCard(){
+        int random = (int)(Math.random() * ((num*52) + 1));
+        return cards.get(random);
+    }
+
     public void PrintAll(){
         for(int i = 1; i <= num; i++){        
             for(int j = 0; j < 52; j++){
