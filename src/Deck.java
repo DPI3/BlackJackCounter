@@ -3,6 +3,7 @@ import java.util.ArrayList;
 public class Deck {
     ArrayList<Card> cards;
     int num; //number of the decks
+    int numCard; //number of cards
     
     ArrayList<Card> createDeck(){
         ArrayList<Card> card = new ArrayList<Card>(52);
@@ -23,10 +24,12 @@ public class Deck {
         for(int i = 0; i < num; i++){
             cards.addAll(createDeck());
         }
+        numCard = cards.size();
     }
 
-    public void RemoveCard(int index){
-        cards.remove(index);
+    public void removeCard(Card card){
+        numCard--;
+        cards.remove(card);
     }
 
     public Card getCard(int index){
@@ -34,16 +37,19 @@ public class Deck {
     }
 
     public Card getRandomCard(){
-        int random = (int)(Math.random() * ((num*52) + 1));
+        int random = (int)(Math.random() * cards.size());
         return cards.get(random);
     }
 
+    public int getNumberOfCards(){
+        return cards.size();
+    }
+
     public void PrintAll(){
-        for(int i = 1; i <= num; i++){        
-            for(int j = 0; j < 52; j++){
-                cards.get(i*j).printcard();
-                System.out.println();
-            }
+        System.out.println("Pakli");
+        for(int i = 0; i < cards.size(); i++){
+            cards.get(i).printcard();
+            System.out.println();
         }
     }
 }

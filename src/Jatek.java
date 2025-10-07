@@ -6,7 +6,15 @@ public abstract class Jatek {
     }
 
     public void consoleDisplayCard(){
-        Card random = deck.getRandomCard();
-        random.printcard();
+        deck.PrintAll();
+        System.out.println();
+        int n = deck.getNumberOfCards();
+        for(int i = 0; i < n; i++){
+            Card random = deck.getRandomCard();
+            System.out.print(i+1 + ". ");
+            random.printcard();
+            System.out.println();
+            deck.removeCard(random);
+        }
     }
 }
