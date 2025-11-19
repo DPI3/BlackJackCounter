@@ -3,81 +3,95 @@ import java.awt.*;
 
 public class App {
     public static void main(String[] args) {
-        // Ensure GUI runs on Event Dispatch Thread
+        // Ensure all GUI tasks run on the Event Dispatch Thread
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Kártyaszámoló Program");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setSize(1024, 768);
             frame.setLocationRelativeTo(null); // Center on screen
 
-            // Main container with CardLayout
+            // -------------------------------------------------------------
+            // 1. Layout Manager
+            // -------------------------------------------------------------
+            // CardLayout allows us to switch between screens (Menu <-> Game)
             CardLayout cardLayout = new CardLayout();
             JPanel mainPanel = new JPanel(cardLayout);
-            
+
+            // -------------------------------------------------------------
+            // 2. The Game Panel (The "View" for the game)
+            // -------------------------------------------------------------
+            // We create ONE instance of GamePanel. We will reset its state
+            // (Mode, Deck count, UI style) whenever a new game starts.
             GamePanel gamePanel = new GamePanel(mainPanel, cardLayout);
-            // Create the Menu Panel
+
+            // -------------------------------------------------------------
+            // 3. The Menu Panel (The Controller for starting games)
+            // -------------------------------------------------------------
+            // We override 'onGameStart' to define what happens when a button is clicked.
             MenuPanel menuPanel = new MenuPanel(mainPanel, cardLayout) {
                 @Override
                 protected void onGameStart(String mode, int decks) {
-                    if (mode.equals("GAME_LEARNING")) {
-                        // Configure GamePanel for Learning (Show count, no quiz)
-                        gamePanel.startLearningGame(decks);
-                        // Switch view to the game
-                        cardLayout.show(mainPanel, "GAME_PANEL");
-                    }
-                    else if (mode.equals("GAME_BEGINNER")) {
-                        // Configure GamePanel for Beginner (Hide count, enable quiz, 3 lives)
-                        gamePanel.startBeginnerGame(decks);
-                        // Switch view to the game
-                        cardLayout.show(mainPanel, "GAME_PANEL");
-                    } 
-                    else if (mode.equals("GAME_ADVANCED")) {
-                        // Advanced mode is not yet implemented in GamePanel
-                        // Future: gamePanel.startAdvancedGame(decks);
-                        cardLayout.show(mainPanel, "GAME_ADVANCED");
+                    switch (mode) {
+                        case "GAME_LEARNING":
+                            // Initialize Learning Logic and UI
+                            gamePanel.startLearningGame(decks);
+                            cardLayout.show(mainPanel, "GAME_PANEL");
+                            break;
+                            
+                        case "GAME_BEGINNER":
+                            // Initialize Beginner Logic (Hidden count, Quiz, Lives)
+                            gamePanel.startBeginnerGame(decks);
+                            cardLayout.show(mainPanel, "GAME_PANEL");
+                            break;
+                            
+                        case "GAME_ADVANCED":
+                            // Initialize Advanced Logic (Hidden count, Text Input, Instant Death)
+                            gamePanel.startAdvancedGame(decks);
+                            cardLayout.show(mainPanel, "GAME_PANEL");
+                            break;
                     }
                 }
             };
-            // --- Placeholders for Future Panels ---
-            // In the future, you will replace these JPanels with your actual GamePanel classes
-            
-            // 3. Advanced Mode Placeholder
-            JPanel advancedPanel = createPlaceholderPanel("Haladó Mód", Color.decode("#E57373"), mainPanel, cardLayout);
 
-            // 4. Scoreboard Placeholder
+            // -------------------------------------------------------------
+            // 4. The Score Panel (Placeholder)
+            // -------------------------------------------------------------
+            // In a full implementation, this would read from ScoreManager.
             JPanel scorePanel = createPlaceholderPanel("Pontozás Tábla", Color.LIGHT_GRAY, mainPanel, cardLayout);
 
-
-            // Add everything to CardLayout
+            // -------------------------------------------------------------
+            // 5. Register Screens to Layout
+            // -------------------------------------------------------------
             mainPanel.add(menuPanel, "MENU");
-            mainPanel.add(gamePanel, "GAME_PANEL");
-            mainPanel.add(advancedPanel, "GAME_ADVANCED");
+            mainPanel.add(gamePanel, "GAME_PANEL"); // Shared by all 3 game modes
             mainPanel.add(scorePanel, "SCORES");
 
-            // Add main panel to frame
+            // -------------------------------------------------------------
+            // 6. Show the App
+            // -------------------------------------------------------------
             frame.add(mainPanel);
-            
-            // Show the window
             frame.setVisible(true);
         });
     }
 
-    // Helper to create temporary panels so you can test navigation
+    // --- Helper for Placeholder Screens ---
     private static JPanel createPlaceholderPanel(String text, Color color, JPanel mainContainer, CardLayout cardLayout) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(color);
         
         JLabel label = new JLabel(text, SwingConstants.CENTER);
-        label.setFont(new Font("Arial", Font.BOLD, 40));
+        label.setFont(new Font("Arial", Font.BOLD, 32));
         label.setForeground(Color.WHITE);
         panel.add(label, BorderLayout.CENTER);
 
         JButton backBtn = new JButton("Vissza a menübe");
         backBtn.setFont(new Font("Arial", Font.PLAIN, 20));
+        backBtn.setFocusPainted(false);
         backBtn.addActionListener(e -> cardLayout.show(mainContainer, "MENU"));
         
         JPanel bottomPanel = new JPanel();
         bottomPanel.setOpaque(false);
+        bottomPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         bottomPanel.add(backBtn);
         panel.add(bottomPanel, BorderLayout.SOUTH);
 

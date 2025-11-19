@@ -8,20 +8,29 @@ public class GamePanel extends JPanel {
     private Jatek gameLogic;
     
     // --- UI Components ---
-    private JLabel cardLabel;      // Display card value/suit
-    private JLabel countLabel;     // Display current count (Hidden in Beginner)
-    private JLabel remainingLabel; // Display remaining cards
-    private JLabel messageLabel;   // Feedback area (e.g., "Correct!", "Wrong!")
-    private JLabel livesLabel;     // Display lives (Only for Beginner)
+    private JLabel cardLabel;
+    private JLabel countLabel;
+    private JLabel remainingLabel;
+    private JLabel messageLabel;
+    private JLabel livesLabel; 
     
-    // Panels for switching between controls
+    // Bottom Control Container (Switches between Normal, Quiz, and Input)
     private JPanel bottomContainer; 
-    private JPanel controlPanel;    // Standard "Next Card" button
-    private JPanel quizPanel;       // Quiz buttons
+    
+    // 1. Standard Controls (Next Button)
+    private JPanel controlPanel; 
+    
+    // 2. Quiz Controls (Beginner - Multiple Choice)
+    private JPanel quizPanel;      
     private JButton[] choiceButtons;
+
+    // 3. Input Controls (Advanced - Text Field)
+    private JPanel inputPanel;
+    private JTextField answerField;
+    private JButton submitButton;
     
     private JPanel mainContainer;
-    private CardLayout mainCardLayout; // To switch back to Menu
+    private CardLayout mainCardLayout;
     private boolean showCount; 
 
     public GamePanel(JPanel mainContainer, CardLayout mainCardLayout) {
@@ -29,11 +38,9 @@ public class GamePanel extends JPanel {
         this.mainCardLayout = mainCardLayout;
         
         setLayout(new BorderLayout());
-        setBackground(new Color(40, 40, 40)); // Dark background
+        setBackground(new Color(40, 40, 40)); // Dark Gray Background
 
-        // --------------------------
-        // 1. Top Stats Bar
-        // --------------------------
+        // --- Top Stats Area ---
         JPanel statsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         statsPanel.setOpaque(false);
         
@@ -48,16 +55,14 @@ public class GamePanel extends JPanel {
         livesLabel = new JLabel("Életek: 3");
         livesLabel.setFont(new Font("Arial", Font.BOLD, 18));
         livesLabel.setForeground(Color.RED);
-        livesLabel.setVisible(false); // Hidden by default
+        livesLabel.setVisible(false); 
         
         statsPanel.add(countLabel);
         statsPanel.add(remainingLabel);
         statsPanel.add(livesLabel);
         add(statsPanel, BorderLayout.NORTH);
 
-        // --------------------------
-        // 2. Center Card Display
-        // --------------------------
+        // --- Center Card Area ---
         JPanel centerPanel = new JPanel(new GridBagLayout());
         centerPanel.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
@@ -70,9 +75,8 @@ public class GamePanel extends JPanel {
         cardLabel.setPreferredSize(new Dimension(220, 320));
         centerPanel.add(cardLabel, gbc);
 
-        // Message Label (Below card)
         gbc.gridy = 1;
-        gbc.insets = new Insets(20, 0, 0, 0); // Top margin
+        gbc.insets = new Insets(20, 0, 0, 0);
         messageLabel = new JLabel(" ");
         messageLabel.setFont(new Font("Arial", Font.BOLD, 22));
         messageLabel.setForeground(Color.YELLOW);
@@ -80,17 +84,30 @@ public class GamePanel extends JPanel {
         
         add(centerPanel, BorderLayout.CENTER);
 
-        // --------------------------
-        // 3. Bottom Controls
-        // --------------------------
+        // --- Bottom Controls (CardLayout) ---
         bottomContainer = new JPanel(new CardLayout());
         bottomContainer.setOpaque(false);
         bottomContainer.setPreferredSize(new Dimension(100, 100));
 
-        // State A: Normal Game (Next Button)
+        // A. Normal Game Controls
+        createControlPanel();
+        // B. Quiz Controls (Beginner)
+        createQuizPanel();
+        // C. Input Controls (Advanced)
+        createInputPanel();
+
+        bottomContainer.add(controlPanel, "CONTROL");
+        bottomContainer.add(quizPanel, "QUIZ");
+        bottomContainer.add(inputPanel, "INPUT");
+        
+        add(bottomContainer, BorderLayout.SOUTH);
+    }
+
+    // --- UI Creation Helpers ---
+
+    private void createControlPanel() {
         controlPanel = new JPanel();
         controlPanel.setOpaque(false);
-        
         JButton nextButton = new JButton("Következő Kártya");
         styleButton(nextButton);
         nextButton.addActionListener(e -> handleNextTurn());
@@ -102,12 +119,12 @@ public class GamePanel extends JPanel {
 
         controlPanel.add(nextButton);
         controlPanel.add(exitButton);
+    }
 
-        // State B: Quiz (Choice Buttons)
+    private void createQuizPanel() {
         quizPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         quizPanel.setOpaque(false);
         choiceButtons = new JButton[3];
-        
         for(int i=0; i<3; i++) {
             JButton btn = new JButton("?");
             styleButton(btn);
@@ -116,13 +133,31 @@ public class GamePanel extends JPanel {
             choiceButtons[i] = btn;
             quizPanel.add(btn);
         }
-
-        bottomContainer.add(controlPanel, "CONTROL");
-        bottomContainer.add(quizPanel, "QUIZ");
-        add(bottomContainer, BorderLayout.SOUTH);
     }
 
-    // --- Initialization Methods ---
+    private void createInputPanel() {
+        inputPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        inputPanel.setOpaque(false);
+
+        JLabel prompt = new JLabel("Írd be a számot: ");
+        prompt.setForeground(Color.WHITE);
+        prompt.setFont(new Font("Arial", Font.BOLD, 18));
+
+        answerField = new JTextField(5);
+        answerField.setFont(new Font("Arial", Font.BOLD, 18));
+        // Allow submitting by pressing Enter
+        answerField.addActionListener(e -> handleTextGuess());
+        
+        submitButton = new JButton("Küldés");
+        styleButton(submitButton);
+        submitButton.addActionListener(e -> handleTextGuess());
+
+        inputPanel.add(prompt);
+        inputPanel.add(answerField);
+        inputPanel.add(submitButton);
+    }
+
+    // --- Game Logic Initialization ---
 
     public void startLearningGame(int deckCount) {
         this.gameLogic = new LearningGame(deckCount);
@@ -133,8 +168,15 @@ public class GamePanel extends JPanel {
 
     public void startBeginnerGame(int deckCount) {
         this.gameLogic = new Beginer(deckCount);
-        this.showCount = false; // Requirement: Hide count
+        this.showCount = false;
         this.livesLabel.setVisible(true);
+        resetUI();
+    }
+
+    public void startAdvancedGame(int deckCount) {
+        this.gameLogic = new AdvancedGame(deckCount);
+        this.showCount = false;
+        this.livesLabel.setVisible(false); // Advanced is instant death
         resetUI();
     }
 
@@ -147,7 +189,7 @@ public class GamePanel extends JPanel {
         switchBottomPanel("CONTROL");
     }
 
-    // --- Game Loop Logic ---
+    // --- Turn Handling ---
 
     private void handleNextTurn() {
         if (gameLogic.isGameOver()) {
@@ -156,58 +198,63 @@ public class GamePanel extends JPanel {
             return;
         }
 
-        // Specific Logic for Beginner Mode
+        // 1. Check Beginner Logic (Quiz)
         if (gameLogic instanceof Beginer) {
             Beginer bg = (Beginer) gameLogic;
-            // Check if we hit the 4-5 card limit
             if (bg.shouldAskUser()) {
                 showQuiz(); 
-                return; // Stop here, wait for user input
+                return;
+            }
+        }
+        // 2. Check Advanced Logic (Text Input)
+        else if (gameLogic instanceof AdvancedGame) {
+            AdvancedGame ag = (AdvancedGame) gameLogic;
+            if (ag.shouldAskUser()) {
+                showTextInput();
+                return;
             }
         }
 
-        // Normal flow: Draw card
+        // 3. Proceed if no interruption needed
         gameLogic.nextTurn();
         updateCardDisplay();
         updateStats();
     }
 
+    // --- Input Handlers ---
+
     private void showQuiz() {
         int correct = gameLogic.getCount();
         ArrayList<Integer> options = new ArrayList<>();
         options.add(correct);
-        
-        // Generate 2 unique fake answers close to the real one
         Random r = new Random();
         while(options.size() < 3) {
-            int fake = correct + (r.nextInt(7) - 3); // Range: correct +/- 3
-            if(!options.contains(fake)) {
-                options.add(fake);
-            }
+            int fake = correct + (r.nextInt(7) - 3);
+            if(!options.contains(fake)) options.add(fake);
         }
         Collections.shuffle(options);
-
-        // Assign numbers to buttons
-        for(int i=0; i<3; i++) {
-            choiceButtons[i].setText(String.valueOf(options.get(i)));
-        }
+        for(int i=0; i<3; i++) choiceButtons[i].setText(String.valueOf(options.get(i)));
         
         messageLabel.setText("Mennyi a számláló?");
         switchBottomPanel("QUIZ");
     }
 
+    private void showTextInput() {
+        messageLabel.setText("Írd be a helyes számot!");
+        answerField.setText("");
+        switchBottomPanel("INPUT");
+        // Focus the text field so user can type immediately
+        SwingUtilities.invokeLater(() -> answerField.requestFocusInWindow());
+    }
+
     private void handleQuizGuess(String text) {
         int guess = Integer.parseInt(text);
-        Beginer bg = (Beginer) gameLogic; // Safe cast because quiz only happens in Beginner
+        Beginer bg = (Beginer) gameLogic;
         
-        boolean isCorrect = bg.checkAnswer(guess);
-
-        if (isCorrect) {
+        if (bg.checkAnswer(guess)) {
             messageLabel.setText("Helyes!");
             messageLabel.setForeground(Color.GREEN);
-            bg.resetCheck(); // Reset the 4-5 card timer
-            
-            // Switch back to game controls
+            bg.resetCheck(); 
             switchBottomPanel("CONTROL");
         } else {
             if (!bg.isAlive()) {
@@ -216,12 +263,35 @@ public class GamePanel extends JPanel {
             } else {
                 messageLabel.setText("Rossz válasz!");
                 messageLabel.setForeground(Color.RED);
-                updateStats(); // Update lives display
+                updateStats();
             }
         }
     }
 
-    // --- Helper Methods ---
+    private void handleTextGuess() {
+        try {
+            String text = answerField.getText().trim();
+            if (text.isEmpty()) return;
+            
+            int guess = Integer.parseInt(text);
+            AdvancedGame ag = (AdvancedGame) gameLogic;
+
+            if (ag.checkAnswer(guess)) {
+                messageLabel.setText("Helyes!");
+                messageLabel.setForeground(Color.GREEN);
+                ag.resetCheckTimer();
+                switchBottomPanel("CONTROL");
+            } else {
+                // Instant Death for Advanced Mode
+                JOptionPane.showMessageDialog(this, "Rossz válasz! A játéknak vége.\nA helyes szám: " + ag.getCount());
+                exitGame();
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Kérlek érvényes számot írj be!");
+        }
+    }
+
+    // --- Helpers ---
 
     private void updateCardDisplay() {
         Card card = gameLogic.getCurrentCard();
@@ -241,7 +311,7 @@ public class GamePanel extends JPanel {
     }
     
     private String getSuitSymbol(suits s) {
-        if (s == null) return "";
+        if(s == null) return "";
         switch(s) {
             case SPADES: return "♠";
             case HEARTS: return "♥";
@@ -259,6 +329,10 @@ public class GamePanel extends JPanel {
         
         if(gameLogic instanceof Beginer) {
             livesLabel.setText("Életek: " + ((Beginer)gameLogic).getLives());
+        } else {
+             if(livesLabel.isVisible() && !(gameLogic instanceof Beginer)) {
+                 livesLabel.setVisible(false);
+             }
         }
     }
 
