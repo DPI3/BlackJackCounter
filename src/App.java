@@ -13,15 +13,31 @@ public class App {
             // Main container with CardLayout
             CardLayout cardLayout = new CardLayout();
             JPanel mainPanel = new JPanel(cardLayout);
-
-            // Create the Menu Panel
-            MenuPanel menuPanel = new MenuPanel(mainPanel, cardLayout);
-
-            // --- Placeholders for Future Panels ---
-            // In the future, you will replace these JPanels with your actual GamePanel classes
             
             // 1. Learning Mode
             GamePanel learningPanel = new GamePanel(mainPanel, cardLayout, true);
+            // Create the Menu Panel
+            MenuPanel menuPanel = new MenuPanel(mainPanel, cardLayout){
+                @Override
+                protected void onGameStart(String mode, int decks) {
+                    if (mode.equals("GAME_LEARNING")) {
+                        // Initialize the logic for Learning Mode with the user's deck count
+                        learningPanel.startNewGame(decks);
+                        cardLayout.show(mainContainer, "GAME_LEARNING");
+                    }
+                    // Logic for other modes (Beginner/Advanced) will go here later
+                    else if (mode.equals("GAME_BEGINNER")) {
+                        // Future: beginnerPanel.startNewGame(decks);
+                        cardLayout.show(mainContainer, "GAME_BEGINNER");
+                    } 
+                    else if (mode.equals("GAME_ADVANCED")) {
+                        // Future: advancedPanel.startNewGame(decks);
+                        cardLayout.show(mainContainer, "GAME_ADVANCED");
+                    }
+                }
+            };
+            // --- Placeholders for Future Panels ---
+            // In the future, you will replace these JPanels with your actual GamePanel classes
             
             // 2. Beginner Mode Placeholder
             JPanel beginnerPanel = createPlaceholderPanel("Kezdő Mód", Color.decode("#64B5F6"), mainPanel, cardLayout);
