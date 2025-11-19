@@ -3,20 +3,70 @@ import java.awt.*;
 
 public class App {
     public static void main(String[] args) {
+        // Ensure GUI runs on Event Dispatch Thread
         SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("Card Counter");
+            JFrame frame = new JFrame("Kártyaszámoló Program");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(800, 600);
+            frame.setSize(1024, 768);
+            frame.setLocationRelativeTo(null); // Center on screen
+
+            // Main container with CardLayout
+            CardLayout cardLayout = new CardLayout();
+            JPanel mainPanel = new JPanel(cardLayout);
+
+            // Create the Menu Panel
+            MenuPanel menuPanel = new MenuPanel(mainPanel, cardLayout);
+
+            // --- Placeholders for Future Panels ---
+            // In the future, you will replace these JPanels with your actual GamePanel classes
             
-            // Use CardLayout to switch between Menu and Game
-            CardLayout cl = new CardLayout();
-            JPanel mainPanel = new JPanel(cl);
+            // 1. Learning Mode Placeholder
+            JPanel learningPanel = createPlaceholderPanel("Tanuló Mód", Color.decode("#81C784"), mainPanel, cardLayout);
             
-            MenuPanel menu = new MenuPanel(mainPanel, cl);
-            mainPanel.add(menu, "MENU");
+            // 2. Beginner Mode Placeholder
+            JPanel beginnerPanel = createPlaceholderPanel("Kezdő Mód", Color.decode("#64B5F6"), mainPanel, cardLayout);
             
+            // 3. Advanced Mode Placeholder
+            JPanel advancedPanel = createPlaceholderPanel("Haladó Mód", Color.decode("#E57373"), mainPanel, cardLayout);
+
+            // 4. Scoreboard Placeholder
+            JPanel scorePanel = createPlaceholderPanel("Pontozás Tábla", Color.LIGHT_GRAY, mainPanel, cardLayout);
+
+
+            // Add everything to CardLayout
+            mainPanel.add(menuPanel, "MENU");
+            mainPanel.add(learningPanel, "GAME_LEARNING");
+            mainPanel.add(beginnerPanel, "GAME_BEGINNER");
+            mainPanel.add(advancedPanel, "GAME_ADVANCED");
+            mainPanel.add(scorePanel, "SCORES");
+
+            // Add main panel to frame
             frame.add(mainPanel);
+            
+            // Show the window
             frame.setVisible(true);
         });
+    }
+
+    // Helper to create temporary panels so you can test navigation
+    private static JPanel createPlaceholderPanel(String text, Color color, JPanel mainContainer, CardLayout cardLayout) {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(color);
+        
+        JLabel label = new JLabel(text, SwingConstants.CENTER);
+        label.setFont(new Font("Arial", Font.BOLD, 40));
+        label.setForeground(Color.WHITE);
+        panel.add(label, BorderLayout.CENTER);
+
+        JButton backBtn = new JButton("Vissza a menübe");
+        backBtn.setFont(new Font("Arial", Font.PLAIN, 20));
+        backBtn.addActionListener(e -> cardLayout.show(mainContainer, "MENU"));
+        
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.setOpaque(false);
+        bottomPanel.add(backBtn);
+        panel.add(bottomPanel, BorderLayout.SOUTH);
+
+        return panel;
     }
 }
