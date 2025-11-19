@@ -1,55 +1,34 @@
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Deck {
-    ArrayList<Card> cards;
-    int num; //number of the decks
-    int numCard; //number of cards
+    private ArrayList<Card> cards;
     
-    ArrayList<Card> createDeck(){
-        ArrayList<Card> card = new ArrayList<Card>(52);
-        for(suits s: suits.values()){
-            for(short j = 2; j <= 14; j++){
-                card.add(new Card(j, s));
-            }
-        }
-        return card;
-    }
-
-    /*
-     * n - the number of decks
-     */
-    Deck(int n){
-        num = n;
-        cards = new ArrayList<Card>(num*52); // 52 - size of a singe deck
-        for(int i = 0; i < num; i++){
+    public Deck(int numberOfDecks){
+        cards = new ArrayList<>(numberOfDecks * 52);
+        for(int i = 0; i < numberOfDecks; i++){
             cards.addAll(createDeck());
         }
-        numCard = cards.size();
+        // Requirement: Use Collections.shuffle()
+        Collections.shuffle(cards); 
     }
 
-    public void removeCard(Card card){
-        numCard--;
-        cards.remove(card);
-    }
-
-    public Card getCard(int index){
-        return cards.get(index);
-    }
-
-    public Card getRandomCard(){
-        int random = (int)(Math.random() * cards.size());
-        return cards.get(random);
-    }
-
-    public int getNumberOfCards(){
-        return cards.size();
-    }
-
-    public void printAll(){
-        System.out.println("Pakli");
-        for(int i = 0; i < cards.size(); i++){
-            cards.get(i).printcard();
-            System.out.println();
+    private ArrayList<Card> createDeck(){
+        ArrayList<Card> newDeck = new ArrayList<>(52);
+        for(suits s: suits.values()){
+            for(short j = 2; j <= 14; j++){
+                newDeck.add(new Card(j, s));
+            }
         }
+        return newDeck;
+    }
+
+    public Card drawCard(){
+        if(cards.isEmpty()) return null;
+        return cards.remove(0);
+    }
+
+    public int getRemainingCards(){
+        return cards.size();
     }
 }
