@@ -20,8 +20,8 @@ public class App {
             // --- Placeholders for Future Panels ---
             // In the future, you will replace these JPanels with your actual GamePanel classes
             
-            // 1. Learning Mode Placeholder
-            JPanel learningPanel = createPlaceholderPanel("Tanuló Mód", Color.decode("#81C784"), mainPanel, cardLayout);
+            // 1. Learning Mode
+            GamePanel learningPanel = new GamePanel(mainPanel, cardLayout, true);
             
             // 2. Beginner Mode Placeholder
             JPanel beginnerPanel = createPlaceholderPanel("Kezdő Mód", Color.decode("#64B5F6"), mainPanel, cardLayout);
