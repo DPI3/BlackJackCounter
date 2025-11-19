@@ -45,7 +45,7 @@ public class Deck {
         return cards.size();
     }
 
-    public void PrintAll(){
+    public void printAll(){
         System.out.println("Pakli");
         for(int i = 0; i < cards.size(); i++){
             cards.get(i).printcard();

@@ -27,4 +27,7 @@ public class Card {
         System.out.print(suit + " ");
         System.out.print(symbol(number));
     }
+    public int getNumber(){
+        return number;
+    }
 }
