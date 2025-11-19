@@ -3,14 +3,22 @@ import java.io.Serializable;
 // Implements Serializable to handle the "Unexpected Shutdown" requirement
 public abstract class Jatek implements Serializable {
     protected Deck deck;
-    protected int currentCount;
+    protected int count;
     protected Card currentCard;
     protected int cardsDrawn;
 
     public Jatek(int numberOfDecks){
-        this.currentCount = 0;
+        this.count = 0;
         this.cardsDrawn = 0;
         this.deck = new Deck(numberOfDecks);
+    }
+
+    // Core logic: Draw card and update count
+    public void nextTurn() {
+        currentCard = deck.drawCard();
+        if (currentCard != null) {
+            updateCount(currentCard.getNumber());
+        }
     }
 
     // Logic to process the next move
@@ -23,11 +31,12 @@ public abstract class Jatek implements Serializable {
     }
 
     private void updateCount(int cardValue){
-        if(cardValue >= 10) currentCount--;
-        else if(cardValue <= 6) currentCount++;
+        if(cardValue >= 10) count--;
+        else if(cardValue <= 6) count++;
     }
 
-    public int getCount() { return currentCount; }
+    public int getCount() { return count; }
     public Card getCurrentCard() { return currentCard; }
     public boolean isGameOver() { return deck.getRemainingCards() == 0; }
+    public int getRemainingCards() { return deck.getRemainingCards(); }
 }
