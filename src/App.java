@@ -14,33 +14,32 @@ public class App {
             CardLayout cardLayout = new CardLayout();
             JPanel mainPanel = new JPanel(cardLayout);
             
-            // 1. Learning Mode
-            GamePanel learningPanel = new GamePanel(mainPanel, cardLayout, true);
+            GamePanel gamePanel = new GamePanel(mainPanel, cardLayout);
             // Create the Menu Panel
-            MenuPanel menuPanel = new MenuPanel(mainPanel, cardLayout){
+            MenuPanel menuPanel = new MenuPanel(mainPanel, cardLayout) {
                 @Override
                 protected void onGameStart(String mode, int decks) {
                     if (mode.equals("GAME_LEARNING")) {
-                        // Initialize the logic for Learning Mode with the user's deck count
-                        learningPanel.startNewGame(decks);
-                        cardLayout.show(mainContainer, "GAME_LEARNING");
+                        // Configure GamePanel for Learning (Show count, no quiz)
+                        gamePanel.startLearningGame(decks);
+                        // Switch view to the game
+                        cardLayout.show(mainPanel, "GAME_PANEL");
                     }
-                    // Logic for other modes (Beginner/Advanced) will go here later
                     else if (mode.equals("GAME_BEGINNER")) {
-                        // Future: beginnerPanel.startNewGame(decks);
-                        cardLayout.show(mainContainer, "GAME_BEGINNER");
+                        // Configure GamePanel for Beginner (Hide count, enable quiz, 3 lives)
+                        gamePanel.startBeginnerGame(decks);
+                        // Switch view to the game
+                        cardLayout.show(mainPanel, "GAME_PANEL");
                     } 
                     else if (mode.equals("GAME_ADVANCED")) {
-                        // Future: advancedPanel.startNewGame(decks);
-                        cardLayout.show(mainContainer, "GAME_ADVANCED");
+                        // Advanced mode is not yet implemented in GamePanel
+                        // Future: gamePanel.startAdvancedGame(decks);
+                        cardLayout.show(mainPanel, "GAME_ADVANCED");
                     }
                 }
             };
             // --- Placeholders for Future Panels ---
             // In the future, you will replace these JPanels with your actual GamePanel classes
-            
-            // 2. Beginner Mode Placeholder
-            JPanel beginnerPanel = createPlaceholderPanel("Kezdő Mód", Color.decode("#64B5F6"), mainPanel, cardLayout);
             
             // 3. Advanced Mode Placeholder
             JPanel advancedPanel = createPlaceholderPanel("Haladó Mód", Color.decode("#E57373"), mainPanel, cardLayout);
@@ -51,8 +50,7 @@ public class App {
 
             // Add everything to CardLayout
             mainPanel.add(menuPanel, "MENU");
-            mainPanel.add(learningPanel, "GAME_LEARNING");
-            mainPanel.add(beginnerPanel, "GAME_BEGINNER");
+            mainPanel.add(gamePanel, "GAME_PANEL");
             mainPanel.add(advancedPanel, "GAME_ADVANCED");
             mainPanel.add(scorePanel, "SCORES");
 
