@@ -1,5 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 public class App {
     public static void main(String[] args) {
@@ -16,13 +18,16 @@ public class App {
             // CardLayout allows us to switch between screens (Menu <-> Game)
             CardLayout cardLayout = new CardLayout();
             JPanel mainPanel = new JPanel(cardLayout);
+            // 1. Initialize Data Layer
+            // We need this manager to pass to both the Game (to save) and the Scoreboard (to load)
+            ScoreManager scoreManager = new ScoreManager();
 
             // -------------------------------------------------------------
             // 2. The Game Panel (The "View" for the game)
             // -------------------------------------------------------------
             // We create ONE instance of GamePanel. We will reset its state
             // (Mode, Deck count, UI style) whenever a new game starts.
-            GamePanel gamePanel = new GamePanel(mainPanel, cardLayout);
+            GamePanel gamePanel = new GamePanel(mainPanel, cardLayout, scoreManager);
 
             // -------------------------------------------------------------
             // 3. The Menu Panel (The Controller for starting games)
@@ -49,15 +54,24 @@ public class App {
                             gamePanel.startAdvancedGame(decks);
                             cardLayout.show(mainPanel, "GAME_PANEL");
                             break;
+                        case "SCORES":
+                            cardLayout.show(mainPanel, "SCORES");
+                            break;
                     }
                 }
             };
 
-            // -------------------------------------------------------------
-            // 4. The Score Panel (Placeholder)
-            // -------------------------------------------------------------
-            // In a full implementation, this would read from ScoreManager.
-            JPanel scorePanel = createPlaceholderPanel("Pontozás Tábla", Color.LIGHT_GRAY, mainPanel, cardLayout);
+            // 4. Initialize Score Panel (The Real Implementation)
+            // Replaces the old createPlaceholderPanel method
+            ScorePanel scorePanel = new ScorePanel(mainPanel, cardLayout, scoreManager);
+            
+            // Add a listener: Refresh the table every time the user navigates to this screen
+            scorePanel.addComponentListener(new ComponentAdapter() {
+                @Override
+                public void componentShown(ComponentEvent e) {
+                    scorePanel.refreshScores();
+                }
+            });
 
             // -------------------------------------------------------------
             // 5. Register Screens to Layout

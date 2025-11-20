@@ -6,6 +6,8 @@ import java.util.Random;
 
 public class GamePanel extends JPanel {
     private Jatek gameLogic;
+    private ScoreManager scoreManager; // Handles saving high scores
+    private String currentModeName;    // "Tanuló", "Kezdő", or "Haladó"
     
     // --- UI Components ---
     private JLabel cardLabel;
@@ -14,18 +16,12 @@ public class GamePanel extends JPanel {
     private JLabel messageLabel;
     private JLabel livesLabel; 
     
-    // Bottom Control Container (Switches between Normal, Quiz, and Input)
+    // Bottom container uses CardLayout to swap between control types
     private JPanel bottomContainer; 
-    
-    // 1. Standard Controls (Next Button)
-    private JPanel controlPanel; 
-    
-    // 2. Quiz Controls (Beginner - Multiple Choice)
-    private JPanel quizPanel;      
+    private JPanel controlPanel;   // Standard: [Next Card] [Exit]
+    private JPanel quizPanel;      // Beginner: [Option 1] [Option 2] [Option 3]
     private JButton[] choiceButtons;
-
-    // 3. Input Controls (Advanced - Text Field)
-    private JPanel inputPanel;
+    private JPanel inputPanel;     // Advanced: [TextField] [Submit]
     private JTextField answerField;
     private JButton submitButton;
     
@@ -33,14 +29,18 @@ public class GamePanel extends JPanel {
     private CardLayout mainCardLayout;
     private boolean showCount; 
 
-    public GamePanel(JPanel mainContainer, CardLayout mainCardLayout) {
+    // Constructor
+    public GamePanel(JPanel mainContainer, CardLayout mainCardLayout, ScoreManager scoreManager) {
         this.mainContainer = mainContainer;
         this.mainCardLayout = mainCardLayout;
+        this.scoreManager = scoreManager;
         
         setLayout(new BorderLayout());
-        setBackground(new Color(40, 40, 40)); // Dark Gray Background
+        setBackground(new Color(40, 40, 40)); // Dark background
 
-        // --- Top Stats Area ---
+        // --------------------------
+        // 1. Top Stats Bar
+        // --------------------------
         JPanel statsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         statsPanel.setOpaque(false);
         
@@ -62,12 +62,15 @@ public class GamePanel extends JPanel {
         statsPanel.add(livesLabel);
         add(statsPanel, BorderLayout.NORTH);
 
-        // --- Center Card Area ---
+        // --------------------------
+        // 2. Center Card Area
+        // --------------------------
         JPanel centerPanel = new JPanel(new GridBagLayout());
         centerPanel.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0; gbc.gridy = 0;
         
+        // The Card Display
         cardLabel = new JLabel("Kezdés", SwingConstants.CENTER);
         cardLabel.setFont(new Font("Serif", Font.BOLD, 60));
         cardLabel.setForeground(Color.WHITE);
@@ -75,6 +78,7 @@ public class GamePanel extends JPanel {
         cardLabel.setPreferredSize(new Dimension(220, 320));
         centerPanel.add(cardLabel, gbc);
 
+        // Feedback Message (Correct/Wrong)
         gbc.gridy = 1;
         gbc.insets = new Insets(20, 0, 0, 0);
         messageLabel = new JLabel(" ");
@@ -84,17 +88,16 @@ public class GamePanel extends JPanel {
         
         add(centerPanel, BorderLayout.CENTER);
 
-        // --- Bottom Controls (CardLayout) ---
+        // --------------------------
+        // 3. Bottom Controls
+        // --------------------------
         bottomContainer = new JPanel(new CardLayout());
         bottomContainer.setOpaque(false);
         bottomContainer.setPreferredSize(new Dimension(100, 100));
 
-        // A. Normal Game Controls
-        createControlPanel();
-        // B. Quiz Controls (Beginner)
-        createQuizPanel();
-        // C. Input Controls (Advanced)
-        createInputPanel();
+        createControlPanel(); // Creates the standard "Next" buttons
+        createQuizPanel();    // Creates the 3 choice buttons
+        createInputPanel();   // Creates the text field input
 
         bottomContainer.add(controlPanel, "CONTROL");
         bottomContainer.add(quizPanel, "QUIZ");
@@ -103,16 +106,17 @@ public class GamePanel extends JPanel {
         add(bottomContainer, BorderLayout.SOUTH);
     }
 
-    // --- UI Creation Helpers ---
+    // --- Setup Helpers ---
 
     private void createControlPanel() {
         controlPanel = new JPanel();
         controlPanel.setOpaque(false);
+        
         JButton nextButton = new JButton("Következő Kártya");
         styleButton(nextButton);
         nextButton.addActionListener(e -> handleNextTurn());
         
-        JButton exitButton = new JButton("Kilépés");
+        JButton exitButton = new JButton("Kilépés és Mentés");
         styleButton(exitButton);
         exitButton.setBackground(new Color(200, 80, 80));
         exitButton.addActionListener(e -> exitGame());
@@ -145,7 +149,7 @@ public class GamePanel extends JPanel {
 
         answerField = new JTextField(5);
         answerField.setFont(new Font("Arial", Font.BOLD, 18));
-        // Allow submitting by pressing Enter
+        // Submits when user presses Enter
         answerField.addActionListener(e -> handleTextGuess());
         
         submitButton = new JButton("Küldés");
@@ -157,10 +161,11 @@ public class GamePanel extends JPanel {
         inputPanel.add(submitButton);
     }
 
-    // --- Game Logic Initialization ---
+    // --- Game Initialization Methods ---
 
     public void startLearningGame(int deckCount) {
         this.gameLogic = new LearningGame(deckCount);
+        this.currentModeName = "Tanuló";
         this.showCount = true;
         this.livesLabel.setVisible(false);
         resetUI();
@@ -168,6 +173,7 @@ public class GamePanel extends JPanel {
 
     public void startBeginnerGame(int deckCount) {
         this.gameLogic = new Beginer(deckCount);
+        this.currentModeName = "Kezdő";
         this.showCount = false;
         this.livesLabel.setVisible(true);
         resetUI();
@@ -175,8 +181,9 @@ public class GamePanel extends JPanel {
 
     public void startAdvancedGame(int deckCount) {
         this.gameLogic = new AdvancedGame(deckCount);
+        this.currentModeName = "Haladó";
         this.showCount = false;
-        this.livesLabel.setVisible(false); // Advanced is instant death
+        this.livesLabel.setVisible(false);
         resetUI();
     }
 
@@ -189,51 +196,55 @@ public class GamePanel extends JPanel {
         switchBottomPanel("CONTROL");
     }
 
-    // --- Turn Handling ---
+    // --- Main Game Loop ---
 
     private void handleNextTurn() {
+        // 1. Check for Game Over
         if (gameLogic.isGameOver()) {
-            JOptionPane.showMessageDialog(this, "A pakli elfogyott! Játék vége.\nVégső szám: " + gameLogic.getCount());
-            exitGame();
+            saveAndEndGame("A pakli elfogyott! Gratulálok!");
             return;
         }
 
-        // 1. Check Beginner Logic (Quiz)
+        // 2. Check Beginner Interruptions
         if (gameLogic instanceof Beginer) {
             Beginer bg = (Beginer) gameLogic;
-            if (bg.shouldAskUser()) {
+            if (bg.shouldAskUser()) { 
                 showQuiz(); 
-                return;
+                return; 
             }
         }
-        // 2. Check Advanced Logic (Text Input)
+        // 3. Check Advanced Interruptions
         else if (gameLogic instanceof AdvancedGame) {
             AdvancedGame ag = (AdvancedGame) gameLogic;
-            if (ag.shouldAskUser()) {
-                showTextInput();
-                return;
+            if (ag.shouldAskUser()) { 
+                showTextInput(); 
+                return; 
             }
         }
 
-        // 3. Proceed if no interruption needed
+        // 4. Draw Card
         gameLogic.nextTurn();
         updateCardDisplay();
         updateStats();
     }
 
-    // --- Input Handlers ---
+    // --- Interaction Handlers ---
 
     private void showQuiz() {
         int correct = gameLogic.getCount();
         ArrayList<Integer> options = new ArrayList<>();
         options.add(correct);
+        
         Random r = new Random();
         while(options.size() < 3) {
             int fake = correct + (r.nextInt(7) - 3);
             if(!options.contains(fake)) options.add(fake);
         }
         Collections.shuffle(options);
-        for(int i=0; i<3; i++) choiceButtons[i].setText(String.valueOf(options.get(i)));
+        
+        for(int i=0; i<3; i++) {
+            choiceButtons[i].setText(String.valueOf(options.get(i)));
+        }
         
         messageLabel.setText("Mennyi a számláló?");
         switchBottomPanel("QUIZ");
@@ -243,7 +254,6 @@ public class GamePanel extends JPanel {
         messageLabel.setText("Írd be a helyes számot!");
         answerField.setText("");
         switchBottomPanel("INPUT");
-        // Focus the text field so user can type immediately
         SwingUtilities.invokeLater(() -> answerField.requestFocusInWindow());
     }
 
@@ -258,8 +268,7 @@ public class GamePanel extends JPanel {
             switchBottomPanel("CONTROL");
         } else {
             if (!bg.isAlive()) {
-                JOptionPane.showMessageDialog(this, "Vége a játéknak! Túl sok rossz válasz.\nVégső szám: " + bg.getCount());
-                exitGame();
+                saveAndEndGame("Vége a játéknak! Túl sok rossz válasz.");
             } else {
                 messageLabel.setText("Rossz válasz!");
                 messageLabel.setForeground(Color.RED);
@@ -282,16 +291,42 @@ public class GamePanel extends JPanel {
                 ag.resetCheckTimer();
                 switchBottomPanel("CONTROL");
             } else {
-                // Instant Death for Advanced Mode
-                JOptionPane.showMessageDialog(this, "Rossz válasz! A játéknak vége.\nA helyes szám: " + ag.getCount());
-                exitGame();
+                saveAndEndGame("Rossz válasz! A játéknak vége.");
             }
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Kérlek érvényes számot írj be!");
         }
     }
 
-    // --- Helpers ---
+    // --- Saving & Exiting ---
+
+    private void saveAndEndGame(String message) {
+        int finalScore = gameLogic.getScore();
+        
+        if (finalScore > 0) {
+            scoreManager.addScore(new Score(currentModeName, finalScore));
+            message += "\nVégső pontszám (lapok): " + finalScore + "\nEredmény mentve!";
+        } else {
+            message += "\nVégső pontszám: 0";
+        }
+
+        JOptionPane.showMessageDialog(this, message);
+        mainCardLayout.show(mainContainer, "MENU");
+    }
+
+    private void exitGame() {
+        // Save score on manual exit if they played at least 1 card
+        if (gameLogic != null && gameLogic.getScore() > 0) {
+            int choice = JOptionPane.showConfirmDialog(this, 
+                "Szeretnéd menteni az eredményt?", "Kilépés", JOptionPane.YES_NO_OPTION);
+            if (choice == JOptionPane.YES_OPTION) {
+                scoreManager.addScore(new Score(currentModeName, gameLogic.getScore()));
+            }
+        }
+        mainCardLayout.show(mainContainer, "MENU");
+    }
+
+    // --- UI Helpers ---
 
     private void updateCardDisplay() {
         Card card = gameLogic.getCurrentCard();
@@ -329,10 +364,6 @@ public class GamePanel extends JPanel {
         
         if(gameLogic instanceof Beginer) {
             livesLabel.setText("Életek: " + ((Beginer)gameLogic).getLives());
-        } else {
-             if(livesLabel.isVisible() && !(gameLogic instanceof Beginer)) {
-                 livesLabel.setVisible(false);
-             }
         }
     }
 
@@ -346,9 +377,5 @@ public class GamePanel extends JPanel {
         btn.setFocusPainted(false);
         btn.setBackground(Color.WHITE);
         btn.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-    }
-
-    private void exitGame() {
-        mainCardLayout.show(mainContainer, "MENU");
     }
 }
