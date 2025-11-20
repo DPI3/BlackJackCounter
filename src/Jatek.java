@@ -6,6 +6,7 @@ public abstract class Jatek implements Serializable {
     protected int count;
     protected Card currentCard;
     protected int cardsDrawn;
+    protected int cardsPlayed;
 
     public Jatek(int numberOfDecks){
         this.count = 0;
@@ -18,6 +19,7 @@ public abstract class Jatek implements Serializable {
         currentCard = deck.drawCard();
         if (currentCard != null) {
             updateCount(currentCard.getNumber());
+            cardsPlayed++;
         }
     }
 
@@ -39,4 +41,5 @@ public abstract class Jatek implements Serializable {
     public Card getCurrentCard() { return currentCard; }
     public boolean isGameOver() { return deck.getRemainingCards() == 0; }
     public int getRemainingCards() { return deck.getRemainingCards(); }
+    public int getScore() { return cardsPlayed; } 
 }
