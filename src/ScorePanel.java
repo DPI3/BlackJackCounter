@@ -27,7 +27,7 @@ public class ScorePanel extends JPanel {
         add(title, BorderLayout.NORTH);
 
         // --- Table ---
-        String[] columnNames = {"Játékmód", "Pontszám (Lapok)", "Dátum"};
+        String[] columnNames = {"Játékmód", "Pontszám (Tanulás esetében lapok)", "Dátum"};
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override // Make cells uneditable
             public boolean isCellEditable(int row, int column) {

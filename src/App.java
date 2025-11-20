@@ -87,28 +87,4 @@ public class App {
             frame.setVisible(true);
         });
     }
-
-    // --- Helper for Placeholder Screens ---
-    private static JPanel createPlaceholderPanel(String text, Color color, JPanel mainContainer, CardLayout cardLayout) {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(color);
-        
-        JLabel label = new JLabel(text, SwingConstants.CENTER);
-        label.setFont(new Font("Arial", Font.BOLD, 32));
-        label.setForeground(Color.WHITE);
-        panel.add(label, BorderLayout.CENTER);
-
-        JButton backBtn = new JButton("Vissza a menübe");
-        backBtn.setFont(new Font("Arial", Font.PLAIN, 20));
-        backBtn.setFocusPainted(false);
-        backBtn.addActionListener(e -> cardLayout.show(mainContainer, "MENU"));
-        
-        JPanel bottomPanel = new JPanel();
-        bottomPanel.setOpaque(false);
-        bottomPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        bottomPanel.add(backBtn);
-        panel.add(bottomPanel, BorderLayout.SOUTH);
-
-        return panel;
-    }
 }
