@@ -9,7 +9,7 @@ public class GamePanel extends JPanel {
     private ScoreManager scoreManager; // Handles saving high scores
     private String currentModeName;    // "Tanuló", "Kezdő", or "Haladó"
     
-    // --- UI Components ---
+    // UI Komponensek
     private JLabel cardLabel;
     private JLabel countLabel;
     private JLabel remainingLabel;
@@ -38,9 +38,7 @@ public class GamePanel extends JPanel {
         setLayout(new BorderLayout());
         setBackground(new Color(40, 40, 40)); // Dark background
 
-        // --------------------------
-        // 1. Top Stats Bar
-        // --------------------------
+        // Top Stats Bar
         JPanel statsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         statsPanel.setOpaque(false);
         
@@ -62,9 +60,7 @@ public class GamePanel extends JPanel {
         statsPanel.add(livesLabel);
         add(statsPanel, BorderLayout.NORTH);
 
-        // --------------------------
-        // 2. Center Card Area
-        // --------------------------
+        // Center Card Area
         JPanel centerPanel = new JPanel(new GridBagLayout());
         centerPanel.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
@@ -88,9 +84,7 @@ public class GamePanel extends JPanel {
         
         add(centerPanel, BorderLayout.CENTER);
 
-        // --------------------------
-        // 3. Bottom Controls
-        // --------------------------
+        // Bottom Controls
         bottomContainer = new JPanel(new CardLayout());
         bottomContainer.setOpaque(false);
         bottomContainer.setPreferredSize(new Dimension(100, 100));
@@ -106,7 +100,7 @@ public class GamePanel extends JPanel {
         add(bottomContainer, BorderLayout.SOUTH);
     }
 
-    // --- Setup Helpers ---
+    // Helpers
 
     private void createControlPanel() {
         controlPanel = new JPanel();
@@ -161,7 +155,7 @@ public class GamePanel extends JPanel {
         inputPanel.add(submitButton);
     }
 
-    // --- Game Initialization Methods ---
+    // Game Initialization Methods
 
     public void startLearningGame(int deckCount) {
         this.gameLogic = new LearningGame(deckCount);
@@ -196,16 +190,16 @@ public class GamePanel extends JPanel {
         switchBottomPanel("CONTROL");
     }
 
-    // --- Main Game Loop ---
+    // Main Game Loop
 
     private void handleNextTurn() {
-        // 1. Check for Game Over
+        // Check for Game Over
         if (gameLogic.isGameOver()) {
             saveAndEndGame("A pakli elfogyott! Gratulálok!");
             return;
         }
 
-        // 2. Check Beginner Interruptions
+        // Check Beginner Interruptions
         if (gameLogic instanceof Beginer) {
             Beginer bg = (Beginer) gameLogic;
             if (bg.shouldAskUser()) { 
@@ -213,7 +207,7 @@ public class GamePanel extends JPanel {
                 return; 
             }
         }
-        // 3. Check Advanced Interruptions
+        // Check Advanced Interruptions
         else if (gameLogic instanceof AdvancedGame) {
             AdvancedGame ag = (AdvancedGame) gameLogic;
             if (ag.shouldAskUser()) { 
@@ -222,13 +216,13 @@ public class GamePanel extends JPanel {
             }
         }
 
-        // 4. Draw Card
+        // Draw Card
         gameLogic.nextTurn();
         updateCardDisplay();
         updateStats();
     }
 
-    // --- Interaction Handlers ---
+    // Interaction Handlers
 
     private void showQuiz() {
         int correct = gameLogic.getCount();
@@ -298,7 +292,7 @@ public class GamePanel extends JPanel {
         }
     }
 
-    // --- Saving & Exiting ---
+    // Save & Exit
 
     private void saveAndEndGame(String message) {
         int finalScore = gameLogic.getScore();
@@ -326,17 +320,35 @@ public class GamePanel extends JPanel {
         mainCardLayout.show(mainContainer, "MENU");
     }
 
-    // --- UI Helpers ---
+    // UI Helpers
 
     private void updateCardDisplay() {
         Card card = gameLogic.getCurrentCard();
         if (card != null) {
             String suitSymbol = getSuitSymbol(card.suit);
+            String cardNumber = Integer.toString(card.getNumber());
+            if(card.getNumber() > 10){
+                switch(card.getNumber()){
+                    case 11:
+                        cardNumber = "J";
+                        break;
+                    case 12:
+                        cardNumber = "Q";
+                        break;
+                    case 13:
+                        cardNumber = "K";
+                        break;
+                    case 14:
+                        cardNumber = "A";
+                }
+
+            }
             cardLabel.setText("<html><div style='text-align: center;'>" + 
-                              card.getNumber() + "<br>" + 
+                              cardNumber + "<br>" + 
                               "<span style='font-size: 40px;'>" + suitSymbol + "</span>" + 
                               "</div></html>");
-            
+
+
             if (card.suit == suits.HEARTS || card.suit == suits.DIAMONDS) {
                 cardLabel.setForeground(new Color(255, 80, 80));
             } else {
