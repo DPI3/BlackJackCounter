@@ -184,6 +184,12 @@ public class GamePanel extends JPanel {
     private void resetUI() {
         cardLabel.setText("Start");
         cardLabel.setForeground(Color.WHITE);
+        
+        //idk miert de valamiert megoldja a kartya elcsuszas bugot
+        String filename = "cards/1B.png";
+        ImageIcon icon = new ImageIcon(filename);
+        Image img = icon.getImage().getScaledInstance(220, 320, Image.SCALE_SMOOTH);
+
         messageLabel.setText(" ");
         countLabel.setVisible(showCount); 
         updateStats();
@@ -325,47 +331,75 @@ public class GamePanel extends JPanel {
     private void updateCardDisplay() {
         Card card = gameLogic.getCurrentCard();
         if (card != null) {
-            String suitSymbol = getSuitSymbol(card.suit);
-            String cardNumber = Integer.toString(card.getNumber());
-            if(card.getNumber() > 10){
-                switch(card.getNumber()){
-                    case 11:
-                        cardNumber = "J";
-                        break;
-                    case 12:
-                        cardNumber = "Q";
-                        break;
-                    case 13:
-                        cardNumber = "K";
-                        break;
-                    case 14:
-                        cardNumber = "A";
-                }
+            // 1. Fájlnév generálása a szabályok alapján
+            String filename = getCardFilename(card);
+            // 2. Kép betöltése
+            // Megjegyzés: Ellenőrizd, hogy a képek a projekt gyökérkönyvtárában vagy az src mappában vannak-e.
+            ImageIcon icon = new ImageIcon(filename);
 
-            }
-            cardLabel.setText("<html><div style='text-align: center;'>" + 
-                              cardNumber + "<br>" + 
-                              "<span style='font-size: 40px;'>" + suitSymbol + "</span>" + 
-                              "</div></html>");
-
-
-            if (card.suit == suits.HEARTS || card.suit == suits.DIAMONDS) {
-                cardLabel.setForeground(new Color(255, 80, 80));
+            // Ellenőrizzük, hogy a kép sikeresen betöltődött-e
+        if (icon.getIconWidth() > 0) {
+                // Átméretezés, hogy illeszkedjen a kártya helyére (kb. 220x320 pixel)
+                Image img = icon.getImage().getScaledInstance(220, 320, Image.SCALE_SMOOTH);
+                cardLabel.setIcon(new ImageIcon(img));
+                
+                // Szöveg és keret eltüntetése, ha van kép
+                cardLabel.setText("");
+                cardLabel.setBorder(null);
             } else {
-                cardLabel.setForeground(Color.WHITE);
+                // Ha nem találja a képet, visszatérünk a szöveges megjelenítésre (Hibakezelés)
+                cardLabel.setIcon(null);
+                cardLabel.setText(filename);
+                cardLabel.setForeground(Color.RED);
             }
         }
     }
-    
-    private String getSuitSymbol(suits s) {
-        if(s == null) return "";
-        switch(s) {
-            case SPADES: return "♠";
-            case HEARTS: return "♥";
-            case CLUBS: return "♣";
-            case DIAMONDS: return "♦";
-            default: return "";
+
+    // ÚJ segédfüggvény a fájlnév összeállításához
+    private String getCardFilename(Card card) {
+        String rank = "";
+        
+        // Számok átalakítása (2-9, T, J, Q, K, A)
+        switch (card.getNumber()) {
+            case 10: 
+                rank = "T"; // 10-es helyett T (Ten) a fájlnévben
+                break;
+            case 11:
+                rank = "J";
+                break;
+            case 12:
+                rank = "Q";
+                break;
+            case 13:
+                rank = "K";
+                break;
+            case 14:
+                rank = "A";
+                break;
+            default:
+                rank = String.valueOf(card.getNumber()); // 2-9
+                break;
         }
+
+        String suit = "";
+        // Színek átalakítása (C, D, H, S)
+        switch (card.suit) {
+            case CLUBS:
+                suit = "C";
+                break;
+            case DIAMONDS:
+                suit = "D";
+                break;
+            case HEARTS:
+                suit = "H";
+                break;
+            case SPADES:
+                suit = "S";
+                break;
+        }
+
+        // Végső fájlnév összerakása, pl: "TC.png"
+        return "cards/" + rank + suit + ".png";
     }
 
     private void updateStats() {
