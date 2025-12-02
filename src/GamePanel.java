@@ -6,8 +6,8 @@ import java.util.Random;
 
 public class GamePanel extends JPanel {
     private Jatek gameLogic;
-    private ScoreManager scoreManager; // Handles saving high scores
-    private String currentModeName;    // "Tanuló", "Kezdő", or "Haladó"
+    private ScoreManager scoreManager;
+    private String currentModeName;    // Tanuló, Kezdő, Haladó
     
     // UI Komponensek
     private JLabel cardLabel;
@@ -16,12 +16,12 @@ public class GamePanel extends JPanel {
     private JLabel messageLabel;
     private JLabel livesLabel; 
     
-    // Bottom container uses CardLayout to swap between control types
+
     private JPanel bottomContainer; 
-    private JPanel controlPanel;   // Standard: [Next Card] [Exit]
-    private JPanel quizPanel;      // Beginner: [Option 1] [Option 2] [Option 3]
+    private JPanel controlPanel;
+    private JPanel quizPanel;
     private JButton[] choiceButtons;
-    private JPanel inputPanel;     // Advanced: [TextField] [Submit]
+    private JPanel inputPanel;
     private JTextField answerField;
     private JButton submitButton;
     
@@ -29,7 +29,7 @@ public class GamePanel extends JPanel {
     private CardLayout mainCardLayout;
     private boolean showCount; 
 
-    // Constructor
+    // Konstruktor
     public GamePanel(JPanel mainContainer, CardLayout mainCardLayout, ScoreManager scoreManager) {
         this.mainContainer = mainContainer;
         this.mainCardLayout = mainCardLayout;
@@ -38,7 +38,6 @@ public class GamePanel extends JPanel {
         setLayout(new BorderLayout());
         setBackground(new Color(40, 40, 40)); // Dark background
 
-        // Top Stats Bar
         JPanel statsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         statsPanel.setOpaque(false);
         
@@ -66,7 +65,7 @@ public class GamePanel extends JPanel {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0; gbc.gridy = 0;
         
-        // The Card Display
+        // Card Display
         cardLabel = new JLabel("Kezdés", SwingConstants.CENTER);
         cardLabel.setFont(new Font("Serif", Font.BOLD, 60));
         cardLabel.setForeground(Color.WHITE);
@@ -74,7 +73,7 @@ public class GamePanel extends JPanel {
         cardLabel.setPreferredSize(new Dimension(220, 320));
         centerPanel.add(cardLabel, gbc);
 
-        // Feedback Message (Correct/Wrong)
+        //Rossz vagy jo
         gbc.gridy = 1;
         gbc.insets = new Insets(20, 0, 0, 0);
         messageLabel = new JLabel(" ");
@@ -84,14 +83,13 @@ public class GamePanel extends JPanel {
         
         add(centerPanel, BorderLayout.CENTER);
 
-        // Bottom Controls
         bottomContainer = new JPanel(new CardLayout());
         bottomContainer.setOpaque(false);
         bottomContainer.setPreferredSize(new Dimension(100, 100));
 
-        createControlPanel(); // Creates the standard "Next" buttons
-        createQuizPanel();    // Creates the 3 choice buttons
-        createInputPanel();   // Creates the text field input
+        createControlPanel();
+        createQuizPanel();
+        createInputPanel();
 
         bottomContainer.add(controlPanel, "CONTROL");
         bottomContainer.add(quizPanel, "QUIZ");
@@ -143,7 +141,7 @@ public class GamePanel extends JPanel {
 
         answerField = new JTextField(5);
         answerField.setFont(new Font("Arial", Font.BOLD, 18));
-        // Submits when user presses Enter
+
         answerField.addActionListener(e -> handleTextGuess());
         
         submitButton = new JButton("Küldés");
@@ -155,7 +153,6 @@ public class GamePanel extends JPanel {
         inputPanel.add(submitButton);
     }
 
-    // Game Initialization Methods
 
     public void startLearningGame(int deckCount) {
         this.gameLogic = new LearningGame(deckCount);
@@ -196,16 +193,15 @@ public class GamePanel extends JPanel {
         switchBottomPanel("CONTROL");
     }
 
-    // Main Game Loop
+    // Main game loop
 
     private void handleNextTurn() {
-        // Check for Game Over
+        // ha vege van
         if (gameLogic.isGameOver()) {
             saveAndEndGame("A pakli elfogyott! Gratulálok!");
             return;
         }
 
-        // Check Beginner Interruptions
         if (gameLogic instanceof Beginer) {
             Beginer bg = (Beginer) gameLogic;
             if (bg.shouldAskUser()) { 
@@ -213,7 +209,7 @@ public class GamePanel extends JPanel {
                 return; 
             }
         }
-        // Check Advanced Interruptions
+
         else if (gameLogic instanceof AdvancedGame) {
             AdvancedGame ag = (AdvancedGame) gameLogic;
             if (ag.shouldAskUser()) { 
@@ -222,13 +218,11 @@ public class GamePanel extends JPanel {
             }
         }
 
-        // Draw Card
+        // Draw card
         gameLogic.nextTurn();
         updateCardDisplay();
         updateStats();
     }
-
-    // Interaction Handlers
 
     private void showQuiz() {
         int correct = gameLogic.getCount();
@@ -298,7 +292,7 @@ public class GamePanel extends JPanel {
         }
     }
 
-    // Save & Exit
+    // Save es Exit
 
     private void saveAndEndGame(String message) {
         int finalScore = gameLogic.getScore();
@@ -315,7 +309,6 @@ public class GamePanel extends JPanel {
     }
 
     private void exitGame() {
-        // Save score on manual exit if they played at least 1 card
         if (gameLogic != null && gameLogic.getScore() > 0) {
             int choice = JOptionPane.showConfirmDialog(this, 
                 "Szeretnéd menteni az eredményt?", "Kilépés", JOptionPane.YES_NO_OPTION);
@@ -331,23 +324,17 @@ public class GamePanel extends JPanel {
     private void updateCardDisplay() {
         Card card = gameLogic.getCurrentCard();
         if (card != null) {
-            // 1. Fájlnév generálása a szabályok alapján
             String filename = getCardFilename(card);
-            // 2. Kép betöltése
-            // Megjegyzés: Ellenőrizd, hogy a képek a projekt gyökérkönyvtárában vagy az src mappában vannak-e.
             ImageIcon icon = new ImageIcon(filename);
 
-            // Ellenőrizzük, hogy a kép sikeresen betöltődött-e
         if (icon.getIconWidth() > 0) {
-                // Átméretezés, hogy illeszkedjen a kártya helyére (kb. 220x320 pixel)
                 Image img = icon.getImage().getScaledInstance(220, 320, Image.SCALE_SMOOTH);
                 cardLabel.setIcon(new ImageIcon(img));
-                
-                // Szöveg és keret eltüntetése, ha van kép
+
                 cardLabel.setText("");
                 cardLabel.setBorder(null);
             } else {
-                // Ha nem találja a képet, visszatérünk a szöveges megjelenítésre (Hibakezelés)
+                // Ha nem találja a képet
                 cardLabel.setIcon(null);
                 cardLabel.setText(filename);
                 cardLabel.setForeground(Color.RED);
@@ -355,14 +342,14 @@ public class GamePanel extends JPanel {
         }
     }
 
-    // ÚJ segédfüggvény a fájlnév összeállításához
+    // file name
     private String getCardFilename(Card card) {
         String rank = "";
         
-        // Számok átalakítása (2-9, T, J, Q, K, A)
+        // Szamok atalakitasa (2-9, T, J, Q, K, A)
         switch (card.getNumber()) {
             case 10: 
-                rank = "T"; // 10-es helyett T (Ten) a fájlnévben
+                rank = "T"; // 10 helyett T a fájlnévben
                 break;
             case 11:
                 rank = "J";
@@ -382,7 +369,7 @@ public class GamePanel extends JPanel {
         }
 
         String suit = "";
-        // Színek átalakítása (C, D, H, S)
+        // Szinek (C, D, H, S)
         switch (card.suit) {
             case CLUBS:
                 suit = "C";
@@ -398,7 +385,6 @@ public class GamePanel extends JPanel {
                 break;
         }
 
-        // Végső fájlnév összerakása, pl: "TC.png"
         return "cards/" + rank + suit + ".png";
     }
 

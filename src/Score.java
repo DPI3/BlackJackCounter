@@ -14,7 +14,7 @@ public class Score implements Serializable {
     /**
      * A játékmód neve, amelyben az eredmény született (pl. "Tanuló", "Kezdő", "Haladó").
      */
-    private String gameMode; // "Tanuló", "Kezdő", "Haladó"
+    private String gameMode; // Tanuló, Kezdő, Haladó
 
     /**
      * Az elért pontszám értéke (általában a sikeresen kijátszott lapok száma).

@@ -53,7 +53,6 @@ public class ScoreManager {
      * @return A rendezett eredmények listája.
      */
     public List<Score> getScores() {
-        // Return sorted by score (descending)
         Collections.sort(scores, Comparator.comparingInt(Score::getScoreValue).reversed());
         return scores;
     }

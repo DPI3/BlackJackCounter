@@ -62,15 +62,6 @@ public class Card {
     }
 
     /**
-     * Kiírja a kártya adatait a standard kimenetre (konzolra).
-     * A formátum: "Szín Érték" (pl. "HEARTS King").
-     */
-    public void printcard(){
-        System.out.print(suit + " ");
-        System.out.print(symbol(number));
-    }
-
-    /**
      * Visszaadja a kártya numerikus értékét.
      * Ez a metódus hasznos a kártyaszámolási logika (Hi-Lo) során.
      *

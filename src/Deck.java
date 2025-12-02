@@ -31,7 +31,7 @@ public class Deck implements Serializable {
         for (int i = 0; i < numberOfDecks; i++) {
             cards.addAll(createSingleDeck());
         }
-        Collections.shuffle(cards); // Requirement: Shuffle using Collections
+        Collections.shuffle(cards);
     }
 
     /**

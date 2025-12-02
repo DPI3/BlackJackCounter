@@ -19,17 +19,15 @@ public class ScorePanel extends JPanel {
         setLayout(new BorderLayout());
         setBackground(new Color(50, 100, 50)); // Match Menu theme
 
-        // --- Title ---
         JLabel title = new JLabel("Eredménytábla", SwingConstants.CENTER);
         title.setFont(new Font("Serif", Font.BOLD, 32));
         title.setForeground(Color.WHITE);
         title.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
         add(title, BorderLayout.NORTH);
 
-        // --- Table ---
         String[] columnNames = {"Játékmód", "Pontszám (Tanulás esetében lapok)", "Dátum"};
         tableModel = new DefaultTableModel(columnNames, 0) {
-            @Override // Make cells uneditable
+            @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
@@ -43,7 +41,6 @@ public class ScorePanel extends JPanel {
         scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 50, 10, 50));
         add(scrollPane, BorderLayout.CENTER);
 
-        // --- Back Button ---
         JButton backBtn = new JButton("Vissza a Menübe");
         backBtn.setFont(new Font("Arial", Font.BOLD, 18));
         backBtn.addActionListener(e -> cardLayout.show(mainContainer, "MENU"));
@@ -55,7 +52,6 @@ public class ScorePanel extends JPanel {
         add(btnPanel, BorderLayout.SOUTH);
     }
 
-    // Called whenever this panel is shown to refresh data
     public void refreshScores() {
         tableModel.setRowCount(0); // Clear existing
         List<Score> scores = scoreManager.getScores();

@@ -35,38 +35,30 @@ public class App {
             frame.setLocationRelativeTo(null); // Középen
 
             // Layout Manager
-            // CardLayout arra szolgál hogy a képernyők között váltogassunk (Menu <-> Game)
+            // kepernyok kozott
             CardLayout cardLayout = new CardLayout();
             JPanel mainPanel = new JPanel(cardLayout);
-            // Initialize Data Layer
-            // We need this manager to pass to both the Game (to save) and the Scoreboard (to load)
+
             ScoreManager scoreManager = new ScoreManager();
 
-            // The Game Panel (The "View" for the game)
-            // We create ONE instance of GamePanel. We will reset its state
-            // (Mode, Deck count, UI style) whenever a new game starts.
             GamePanel gamePanel = new GamePanel(mainPanel, cardLayout, scoreManager);
 
-            // The Menu Panel (The Controller for starting games)
-            // We override 'onGameStart' to define what happens when a button is clicked.
             MenuPanel menuPanel = new MenuPanel(mainPanel, cardLayout) {
                 @Override
                 protected void onGameStart(String mode, int decks) {
                     switch (mode) {
                         case "GAME_LEARNING":
-                            // Initialize Learning Logic and UI
+                            // inicializalas
                             gamePanel.startLearningGame(decks);
                             cardLayout.show(mainPanel, "GAME_PANEL");
                             break;
 
                         case "GAME_BEGINNER":
-                            // Initialize Beginner Logic (Hidden count, Quiz, Lives)
                             gamePanel.startBeginnerGame(decks);
                             cardLayout.show(mainPanel, "GAME_PANEL");
                             break;
 
                         case "GAME_ADVANCED":
-                            // Initialize Advanced Logic (Hidden count, Text Input, Instant Death)
                             gamePanel.startAdvancedGame(decks);
                             cardLayout.show(mainPanel, "GAME_PANEL");
                             break;
@@ -77,11 +69,9 @@ public class App {
                 }
             };
 
-            // 4. Initialize Score Panel (The Real Implementation)
-            // Replaces the old createPlaceholderPanel method
             ScorePanel scorePanel = new ScorePanel(mainPanel, cardLayout, scoreManager);
 
-            // Add a listener: Refresh the table every time the user navigates to this screen
+            //listener
             scorePanel.addComponentListener(new ComponentAdapter() {
                 @Override
                 public void componentShown(ComponentEvent e) {
@@ -89,16 +79,11 @@ public class App {
                 }
             });
 
-
-            // 5. Register Screens to Layout
-
             mainPanel.add(menuPanel, "MENU");
-            mainPanel.add(gamePanel, "GAME_PANEL"); // Shared by all 3 game modes
+            mainPanel.add(gamePanel, "GAME_PANEL"); //midharom ezt hasznalja
             mainPanel.add(scorePanel, "SCORES");
 
-
-            // 6. Show the App
-
+            // vegso megjelenites
             frame.add(mainPanel);
             frame.setVisible(true);
         });

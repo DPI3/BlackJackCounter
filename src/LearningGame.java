@@ -22,6 +22,4 @@ public class LearningGame extends Jatek {
         super(decks);
     }
 
-    // Learning mode is simple: just draw the next card.
-    // No special stops or questions needed.
 }

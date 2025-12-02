@@ -35,9 +35,7 @@ public class MenuPanel extends JPanel {
         add(buttonPanel);
     }
 
-    // This method allows App.java to override behavior
     protected void onGameStart(String mode, int decks) {
-        // Default behavior: just switch
         cardLayout.show(mainContainer, mode);
     }
 
