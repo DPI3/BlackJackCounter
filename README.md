@@ -1,22 +1,16 @@
-BlackJack Counter (Kártyaszámoló Program)
+# BlackJack Counter (Kártyaszámoló Program)
 
 BlackJack Counter is a Java-based desktop application designed to teach users how to count cards in Blackjack using the Hi-Lo strategy. Inspired by the movie 21, this program offers various difficulty levels to practice tracking the running count of a deck.
 +1
 
-📖 Table of Contents
-About the Project
+## 📖 Table of Contents
+* [About the Project](#about-the-project)
+* [Features](#features)
+* [Game Modes](#game-modes)
+* [How to Play](#how-to-play)
+* [Technologies](#technologies)
 
-Features
-
-Game Modes
-
-How to Play
-
-Project Structure
-
-Technologies
-
-🧐 About the Project
+## 🧐 About the Project
 The application simulates a Blackjack deck environment to help users practice the Hi-Lo counting system. In this system:
 
 +1: Cards 2 through 6.
@@ -27,7 +21,7 @@ The application simulates a Blackjack deck environment to help users practice th
 
 The goal is to maintain an accurate running count to determine the player's statistical advantage.
 
-✨ Features
+## ✨ Features
 Multiple Difficulty Levels: Includes Learning, Beginner, and Advanced modes.
 
 Customizable Deck Count: Users can select between 2 and 6 decks for gameplay.
@@ -39,8 +33,8 @@ State Recovery: The program can continue a game in case of an unexpected stop.
 Graphical Interface: Built with Java Swing, featuring card visualizations.
 +2
 
-🎮 Game Modes
-1. Learning Mode (Tanuló)
+## 🎮 Game Modes
+### 1. Learning Mode (Tanuló)
 
 Goal: Learn the basics of assigning values to cards.
 
@@ -48,7 +42,7 @@ Mechanics: Cards appear one by one. The current "Running Count" is displayed at 
 
 Failure Condition: None. The user stops the game manually.
 
-2. Beginner Mode (Kezdő)
+### 2. Beginner Mode (Kezdő)
 
 Goal: Practice maintaining the count without visual aid.
 
@@ -59,7 +53,7 @@ Lives: The player has 3 lives. A wrong answer deducts a life.
 
 Failure Condition: The game ends after 3 incorrect answers.
 
-3. Advanced Mode (Haladó)
+### 3. Advanced Mode (Haladó)
 
 Goal: Master the count under pressure.
 
@@ -68,23 +62,27 @@ Mechanics: Similar to Beginner mode, but there are no multiple-choice options. T
 Failure Condition: "Sudden Death" — the game ends immediately upon the first wrong answer.
 +1
 
-🚀 How to Play
-Launch the Application: The main menu will appear with options for the game modes and the scoreboard.
+## 🚀 How to Play
+### Launch the Application:
+The main menu will appear with options for the game modes and the scoreboard.
 
-Select a Mode: Choose between Tanuló (Learning), Kezdő (Beginner), or Haladó (Advanced).
+### Select a Mode: 
+Choose between Tanuló (Learning), Kezdő (Beginner), or Haladó (Advanced).
 
-Configure Decks: Enter the number of decks you wish to play with (Input range: 2–6).
+### Configure Decks: 
+Enter the number of decks you wish to play with (Input range: 2–6).
 
-Controls:
-
+### Controls:
 Next Card: Press the Space bar or click the "Következő Kártya" button.
 
-Exit/Save: Click "Kilépés és Mentés" to stop and save your progress.
+### Exit/Save: 
+Click "Kilépés és Mentés" to stop and save your progress.
 +1
 
-Scoring: Your score represents the number of cards you successfully counted before the game ended or the deck ran out.
+### Scoring: 
+Your score represents the number of cards you successfully counted before the game ended or the deck ran out.
 
-🏗 Project Structure
+## 🏗 Project Structure
 The project follows an Object-Oriented design using the following key classes:
 
 App / Menu: Handles the GUI and main menu navigation.
@@ -108,7 +106,7 @@ ScoreManager: Handles saving and loading scores to a file.
 
 Score: Represents a player's score object.
 
-💻 Technologies
+## 💻 Technologies
 Language: Java 
 +1
 
@@ -118,5 +116,6 @@ GUI Framework: Swing (JFrame, JPanel, JButton)
 Persistence: File I/O for saving scores 
 
 Author: Dénes Péter István
+
 
 
